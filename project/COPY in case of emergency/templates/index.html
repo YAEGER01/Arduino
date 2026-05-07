@@ -1,0 +1,777 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ESP Data Logger Dashboard</title>
+    <!-- Modern Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons+Round">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-hover: #4f46e5;
+            --bg-light: #f8fafc;
+            --bg-dark: #0f172a;
+            --card-light: rgba(255, 255, 255, 0.8);
+            --card-dark: rgba(30, 41, 59, 0.7);
+            --text-light: #1e293b;
+            --text-dark: #f8fafc;
+            --border-light: rgba(226, 232, 240, 0.8);
+            --border-dark: rgba(51, 65, 85, 0.5);
+            --accent-success: #10b981;
+            --accent-warning: #f59e0b;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        [data-theme="dark"] {
+            --bg-main: var(--bg-dark);
+            --bg-card: var(--card-dark);
+            --text-main: var(--text-dark);
+            --border-main: var(--border-dark);
+            --shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+        }
+
+        [data-theme="light"] {
+            --bg-main: var(--bg-light);
+            --bg-card: var(--card-light);
+            --text-main: var(--text-light);
+            --border-main: var(--border-light);
+            --shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: var(--bg-main);
+            color: var(--text-main);
+            transition: var(--transition);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Modern Navigation */
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 70px;
+            background: var(--bg-card);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border-main);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 24px;
+            z-index: 1000;
+        }
+
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 700;
+            font-size: 1.25rem;
+            color: var(--primary);
+        }
+
+        .nav-actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        .btn-icon {
+            background: none;
+            border: 1px solid var(--border-main);
+            color: var(--text-main);
+            padding: 8px;
+            border-radius: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            transition: var(--transition);
+        }
+
+        .btn-icon:hover {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        /* Sidebar */
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 70px;
+            bottom: 0;
+            width: 260px;
+            background: var(--bg-card);
+            backdrop-filter: blur(12px);
+            border-right: 1px solid var(--border-main);
+            padding: 24px 16px;
+            transform: translateX(-100%);
+            transition: var(--transition);
+            z-index: 999;
+        }
+
+        .sidebar.active {
+            transform: translateX(0);
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            text-decoration: none;
+            color: var(--text-main);
+            border-radius: 12px;
+            margin-bottom: 8px;
+            transition: var(--transition);
+            opacity: 0.7;
+            cursor: pointer;
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            background: var(--primary);
+            color: white;
+            opacity: 1;
+        }
+
+        /* Content Area */
+        .main-content {
+            margin-top: 70px;
+            padding: 32px;
+            transition: var(--transition);
+        }
+
+        @media (min-width: 1024px) {
+            .sidebar {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                margin-left: 260px;
+            }
+
+            .drawer-toggle {
+                display: none;
+            }
+        }
+
+        /* Metrics Grid */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+
+        .stat-card {
+            background: var(--bg-card);
+            backdrop-filter: blur(16px);
+            border: 1px solid var(--border-main);
+            border-radius: 24px;
+            padding: 24px;
+            box-shadow: var(--shadow);
+        }
+
+        .stat-label {
+            font-size: 0.875rem;
+            font-weight: 600;
+            opacity: 0.6;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .stat-value {
+            font-size: 1.75rem;
+            font-weight: 700;
+        }
+
+        /* Table & Panel Design */
+        .glass-panel {
+            background: var(--bg-card);
+            backdrop-filter: blur(16px);
+            border: 1px solid var(--border-main);
+            border-radius: 24px;
+            padding: 24px;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 24px;
+        }
+
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+            overflow-y: auto;
+            max-height: 500px;
+            border-radius: 16px;
+            border: 1px solid var(--border-main);
+        }
+
+        /* Analytics Specific Styles */
+        .analytics-group {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 24px;
+        }
+
+        .chart-container {
+            width: 100%;
+            height: 300px;
+            margin-bottom: 32px;
+            position: relative;
+        }
+
+        .analytics-item {
+            padding: 16px;
+            border-radius: 16px;
+            background: rgba(99, 102, 241, 0.03);
+            border: 1px solid var(--border-main);
+        }
+
+        .time-label {
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .event-tally {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.9rem;
+            margin-bottom: 4px;
+        }
+
+        /* Smooth scrollbar for webkit */
+        .table-wrapper::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        .table-wrapper::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .table-wrapper::-webkit-scrollbar-thumb {
+            background: var(--border-main);
+            border-radius: 10px;
+        }
+
+        .table-wrapper::-webkit-scrollbar-thumb:hover {
+            background: var(--primary);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+
+        th {
+            background: var(--bg-card);
+            backdrop-filter: blur(8px);
+            position: sticky;
+            top: 0;
+            z-index: 5;
+            padding: 16px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            border-bottom: 2px solid var(--border-main);
+        }
+
+        [data-theme="dark"] th {
+            background: rgba(30, 41, 59, 0.95);
+        }
+
+        [data-theme="light"] th {
+            background: rgba(255, 255, 255, 0.95);
+        }
+
+        td {
+            padding: 16px;
+            border-bottom: 1px solid var(--border-main);
+            font-size: 0.9rem;
+        }
+
+        tr:hover td {
+            background: rgba(99, 102, 241, 0.05);
+        }
+
+        /* Status Pills */
+        .pill {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            display: inline-block;
+        }
+
+        .pill-true {
+            background: rgba(16, 185, 129, 0.15);
+            color: #10b981;
+        }
+
+        .pill-false {
+            background: rgba(244, 63, 94, 0.15);
+            color: #f43f5e;
+        }
+
+        .refreshing-spinner {
+            animation: rotate 2s linear infinite;
+        }
+
+        @keyframes rotate {
+            from {
+                transform: rotate(0deg);
+            }
+
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .view-hidden {
+            display: none !important;
+        }
+
+        @media (max-width: 640px) {
+            .main-content {
+                padding: 16px;
+            }
+
+            .stat-card {
+                padding: 16px;
+            }
+
+            .table-wrapper {
+                max-height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body data-theme="light">
+
+    <!-- Header -->
+    <header class="header">
+        <div class="logo-section">
+            <button class="btn-icon drawer-toggle" onclick="toggleSidebar()">
+                <span class="material-icons-round">menu</span>
+            </button>
+            <span class="material-icons-round" style="font-size: 32px;">sensors</span>
+            <span>ESP-Logger</span>
+        </div>
+
+        <div class="nav-actions">
+            <button class="btn-icon" onclick="loadData()" id="refresh-btn">
+                <span class="material-icons-round">refresh</span>
+            </button>
+            <button class="btn-icon" onclick="toggleTheme()" id="theme-btn">
+                <span class="material-icons-round">dark_mode</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+        <nav>
+            <div onclick="switchView('dashboard')" class="nav-link active" id="nav-dashboard">
+                <span class="material-icons-round">dashboard</span>
+                <span>Dashboard</span>
+            </div>
+            <div onclick="switchView('analytics')" class="nav-link" id="nav-analytics">
+                <span class="material-icons-round">analytics</span>
+                <span>Analytics</span>
+            </div>
+            <div class="nav-link">
+                <span class="material-icons-round">history</span>
+                <span>History</span>
+            </div>
+            <div class="nav-link">
+                <span class="material-icons-round">settings</span>
+                <span>Settings</span>
+            </div>
+        </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+
+        <!-- Dashboard View -->
+        <div id="view-dashboard">
+            <div class="metrics-grid">
+                <div class="stat-card">
+                    <span class="stat-label">Current Distance</span>
+                    <div class="stat-value" id="val-dist">-- <span style="font-size: 1rem">cm</span></div>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-label">Presence State</span>
+                    <div class="stat-value" id="val-presence">--</div>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-label">Loiter Count</span>
+                    <div class="stat-value" id="val-loiter">--</div>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-label">LCD Status</span>
+                    <div class="stat-value" id="val-lcd">--</div>
+                </div>
+            </div>
+
+            <div class="glass-panel">
+                <div class="panel-header">
+                    <h2 style="font-weight: 700; font-size: 1.25rem;">Live Activity Logs</h2>
+                    <span style="font-size: 0.8rem; opacity: 0.6;" id="last-updated">Updating...</span>
+                </div>
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Time</th>
+                                <th>State</th>
+                                <th>Distance</th>
+                                <th>PIR</th>
+                                <th>Presence</th>
+                                <th>Trend</th>
+                                <th>Loiter</th>
+                                <th>LCD</th>
+                            </tr>
+                        </thead>
+                        <tbody id="data-body">
+                            <tr>
+                                <td colspan="8" style="text-align: center; padding: 60px;">
+                                    <div style="opacity: 0.4">Initializing...</div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Analytics View -->
+        <div id="view-analytics" class="view-hidden">
+            <div class="panel-header">
+                <h1 style="margin-bottom: 0;">Activity Analytics</h1>
+                <div style="display: flex; gap: 8px;">
+                    <button class="btn-icon" style="font-size: 0.8rem; padding: 4px 12px;"
+                        onclick="renderAnalytics('hour')">Hourly</button>
+                    <button class="btn-icon" style="font-size: 0.8rem; padding: 4px 12px;"
+                        onclick="renderAnalytics('day')">Daily</button>
+                    <button class="btn-icon" style="font-size: 0.8rem; padding: 4px 12px;"
+                        onclick="renderAnalytics('month')">Monthly</button>
+                </div>
+            </div>
+
+            <!-- Charts Section -->
+            <div class="metrics-grid">
+                <div class="stat-card" style="grid-column: span 2">
+                    <span class="stat-label">Loiter & Static Event Trends</span>
+                    <div class="chart-container">
+                        <canvas id="eventChart"></canvas>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-label">Avg. Proximity Distribution</span>
+                    <div class="chart-container">
+                        <canvas id="distanceChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div class="glass-panel">
+                <div class="panel-header">
+                    <h2 style="font-weight: 700; font-size: 1.25rem;">Event Summary</h2>
+                </div>
+
+                <div id="analytics-content" class="analytics-group">
+                    <div style="grid-column: 1 / -1; text-align: center; padding: 40px; opacity: 0.5;">
+                        Loading activity reports...
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <script>
+        // State Management
+        const state = {
+            theme: localStorage.getItem('theme') || 'light',
+            isSidebarOpen: false,
+            currentView: 'dashboard',
+            rawData: [],
+            charts: {
+                event: null,
+                distance: null
+            }
+        };
+
+        // Navigation
+        function switchView(viewName) {
+            state.currentView = viewName;
+
+            // Toggle Views
+            document.getElementById('view-dashboard').classList.toggle('view-hidden', viewName !== 'dashboard');
+            document.getElementById('view-analytics').classList.toggle('view-hidden', viewName !== 'analytics');
+
+            // Toggle Nav Active Class
+            document.getElementById('nav-dashboard').classList.toggle('active', viewName === 'dashboard');
+            document.getElementById('nav-analytics').classList.toggle('active', viewName === 'analytics');
+
+            if (viewName === 'analytics') {
+                setTimeout(() => renderAnalytics('hour'), 100);
+            }
+        }
+
+        // Theme Toggle
+        function toggleTheme() {
+            state.theme = state.theme === 'light' ? 'dark' : 'light';
+            document.body.setAttribute('data-theme', state.theme);
+            localStorage.setItem('theme', state.theme);
+            updateThemeUI();
+            if (state.currentView === 'analytics') renderAnalytics();
+        }
+
+        function updateThemeUI() {
+            const btn = document.getElementById('theme-btn').querySelector('span');
+            btn.textContent = state.theme === 'light' ? 'dark_mode' : 'light_mode';
+        }
+
+        // Sidebar Toggle
+        function toggleSidebar() {
+            state.isSidebarOpen = !state.isSidebarOpen;
+            document.getElementById('sidebar').classList.toggle('active', state.isSidebarOpen);
+        }
+
+        // Analytics Processing
+        function renderAnalytics(mode = 'hour') {
+            const container = document.getElementById('analytics-content');
+            if (!state.rawData.length) {
+                container.innerHTML = `<div style="grid-column:1/-1; text-align:center; padding:40px;">No data available to analyze.</div>`;
+                return;
+            }
+
+            const groups = {};
+
+            // Process data in chronological order for charts
+            const sortedData = [...state.rawData].sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+
+            sortedData.forEach(row => {
+                const date = new Date(row.timestamp);
+                let key;
+
+                if (mode === 'month') {
+                    key = date.toLocaleDateString(undefined, { year: 'numeric', month: 'short' });
+                } else if (mode === 'day') {
+                    key = date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+                } else {
+                    key = date.getHours() + ':00';
+                }
+
+                if (!groups[key]) {
+                    groups[key] = { loiters: 0, staticEvents: 0, count: 0, totalDist: 0 };
+                }
+
+                groups[key].count++;
+                groups[key].totalDist += row.distance;
+                if (row.loiter_count > 0) groups[key].loiters += row.loiter_count;
+                if (row.state === 'STATIC') groups[key].staticEvents++;
+            });
+
+            // Update List UI
+            container.innerHTML = Object.entries(groups).reverse().map(([time, stats]) => `
+                <div class="analytics-item">
+                    <span class="time-label">${time}</span>
+                    <div class="event-tally">
+                        <span>Linger/Loiters</span>
+                        <span style="font-weight:700">${stats.loiters}</span>
+                    </div>
+                    <div class="event-tally">
+                        <span>Static Presence</span>
+                        <span style="font-weight:700">${stats.staticEvents}</span>
+                    </div>
+                    <div class="event-tally">
+                        <span>Avg. Distance</span>
+                        <span>${(stats.totalDist / stats.count).toFixed(1)} cm</span>
+                    </div>
+                    <div style="height:4px; width:100%; background:var(--border-main); border-radius:2px; margin-top:8px; overflow:hidden">
+                        <div style="height:100%; width:${Math.min((stats.loiters / 10) * 100, 100)}%; background:var(--primary)"></div>
+                    </div>
+                </div>
+            `).join('');
+
+            updateCharts(groups);
+        }
+
+        function updateCharts(groups) {
+            const labels = Object.keys(groups);
+            const loiterData = labels.map(l => groups[l].loiters);
+            const staticData = labels.map(l => groups[l].staticEvents);
+            const distanceData = labels.map(l => (groups[l].totalDist / groups[l].count).toFixed(1));
+
+            const isDark = state.theme === 'dark';
+            const textColor = isDark ? '#f8fafc' : '#1e293b';
+            const gridColor = isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)';
+
+            // Event Chart
+            if (state.charts.event) state.charts.event.destroy();
+            state.charts.event = new Chart(document.getElementById('eventChart'), {
+                type: 'line',
+                data: {
+                    labels,
+                    datasets: [
+                        {
+                            label: 'Loiters',
+                            data: loiterData,
+                            borderColor: '#6366f1',
+                            backgroundColor: 'rgba(99, 102, 241, 0.1)',
+                            fill: true,
+                            tension: 0.4
+                        },
+                        {
+                            label: 'Static Events',
+                            data: staticData,
+                            borderColor: '#10b981',
+                            borderDash: [5, 5],
+                            tension: 0.4
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { labels: { color: textColor, font: { family: 'Plus Jakarta Sans' } } }
+                    },
+                    scales: {
+                        x: { grid: { display: false }, ticks: { color: textColor } },
+                        y: { grid: { color: gridColor }, ticks: { color: textColor } }
+                    }
+                }
+            });
+
+            // Distance Chart
+            if (state.charts.distance) state.charts.distance.destroy();
+            state.charts.distance = new Chart(document.getElementById('distanceChart'), {
+                type: 'bar',
+                data: {
+                    labels,
+                    datasets: [{
+                        label: 'Avg Distance (cm)',
+                        data: distanceData,
+                        backgroundColor: '#6366f1',
+                        borderRadius: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        x: { grid: { display: false }, ticks: { color: textColor } },
+                        y: { grid: { color: gridColor }, ticks: { color: textColor } }
+                    }
+                }
+            });
+        }
+
+        // Data Loading
+        async function loadData() {
+            const refreshBtn = document.getElementById('refresh-btn');
+            refreshBtn.classList.add('refreshing-spinner');
+
+            try {
+                const response = await fetch('/api/data');
+                const data = await response.json();
+                state.rawData = data;
+                renderDashboardUI(data);
+                if (state.currentView === 'analytics') renderAnalytics();
+
+                document.getElementById('last-updated').textContent = `Last sync: ${new Date().toLocaleTimeString()}`;
+            } catch (error) {
+                console.error('Data sync failed:', error);
+            } finally {
+                setTimeout(() => refreshBtn.classList.remove('refreshing-spinner'), 600);
+            }
+        }
+
+        function renderDashboardUI(data) {
+            const tbody = document.getElementById('data-body');
+
+            if (!data || data.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; padding:40px;">No sensor data found</td></tr>`;
+                return;
+            }
+
+            const latest = data[0];
+            document.getElementById('val-dist').innerHTML = `${latest.distance} <span style="font-size: 1rem">cm</span>`;
+            document.getElementById('val-presence').innerHTML = latest.presence ?
+                `<span style="color:var(--accent-success)">ACTIVE</span>` : `<span>IDLE</span>`;
+            document.getElementById('val-loiter').textContent = latest.loiter_count || 0;
+            document.getElementById('val-lcd').textContent = latest.lcd_on ? 'ON' : 'OFF';
+
+            tbody.innerHTML = data.map(row => `
+                <tr>
+                    <td style="font-weight:600">${new Date(row.timestamp).toLocaleTimeString()}</td>
+                    <td><span class="pill" style="background:rgba(99,102,241,0.1); color:var(--primary)">${row.state}</span></td>
+                    <td>${row.distance} cm</td>
+                    <td><span class="pill pill-${!!row.pir}">${row.pir ? 'YES' : 'NO'}</span></td>
+                    <td><span class="pill pill-${!!row.presence}">${row.presence ? 'YES' : 'NO'}</span></td>
+                    <td><code style="font-size:0.75rem">${row.trend_buffer || '-'}</code></td>
+                    <td>${row.loiter_count}</td>
+                    <td><span class="pill pill-${!!row.lcd_on}">${row.lcd_on ? 'ON' : 'OFF'}</span></td>
+                </tr>
+            `).join('');
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            document.body.setAttribute('data-theme', state.theme);
+            updateThemeUI();
+            loadData();
+            setInterval(loadData, 15000);
+        });
+
+        document.addEventListener('click', (e) => {
+            if (window.innerWidth < 1024 && state.isSidebarOpen) {
+                if (!e.target.closest('#sidebar') && !e.target.closest('.drawer-toggle')) {
+                    toggleSidebar();
+                }
+            }
+        });
+    </script>
+</body>
+
+</html>
