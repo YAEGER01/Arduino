@@ -5,13 +5,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ESP Data Logger Dashboard</title>
-    <!-- Modern Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap"
         rel="stylesheet">
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons+Round">
-    <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <style>
@@ -43,7 +41,7 @@
             --bg-main: var(--bg-light);
             --bg-card: var(--card-light);
             --text-main: var(--text-light);
-            --border-main: var(--border-light);
+            --border-main: var(--border-main);
             --shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
         }
 
@@ -62,7 +60,6 @@
             overflow-x: hidden;
         }
 
-        /* Modern Navigation */
         .header {
             position: fixed;
             top: 0;
@@ -111,7 +108,6 @@
             border-color: var(--primary);
         }
 
-        /* Sidebar */
         .sidebar {
             position: fixed;
             left: 0;
@@ -152,7 +148,6 @@
             opacity: 1;
         }
 
-        /* Content Area */
         .main-content {
             margin-top: 70px;
             padding: 32px;
@@ -173,7 +168,6 @@
             }
         }
 
-        /* Metrics Grid */
         .metrics-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
@@ -203,7 +197,6 @@
             font-weight: 700;
         }
 
-        /* Table & Panel Design */
         .glass-panel {
             background: var(--bg-card);
             backdrop-filter: blur(16px);
@@ -234,7 +227,6 @@
             border: 1px solid var(--border-main);
         }
 
-        /* Analytics Specific Styles */
         .analytics-group {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -269,7 +261,6 @@
             margin-bottom: 4px;
         }
 
-        /* Smooth scrollbar for webkit */
         .table-wrapper::-webkit-scrollbar {
             width: 8px;
             height: 8px;
@@ -326,7 +317,6 @@
             background: rgba(99, 102, 241, 0.05);
         }
 
-        /* Status Pills */
         .pill {
             padding: 4px 12px;
             border-radius: 20px;
@@ -381,7 +371,6 @@
 
 <body data-theme="light">
 
-    <!-- Header -->
     <header class="header">
         <div class="logo-section">
             <button class="btn-icon drawer-toggle" onclick="toggleSidebar()">
@@ -401,7 +390,6 @@
         </div>
     </header>
 
-    <!-- Sidebar -->
     <aside class="sidebar" id="sidebar">
         <nav>
             <div onclick="switchView('dashboard')" class="nav-link active" id="nav-dashboard">
@@ -412,45 +400,34 @@
                 <span class="material-icons-round">analytics</span>
                 <span>Analytics</span>
             </div>
-            <div class="nav-link">
-                <span class="material-icons-round">history</span>
-                <span>History</span>
-            </div>
-            <div class="nav-link">
-                <span class="material-icons-round">settings</span>
-                <span>Settings</span>
-            </div>
         </nav>
     </aside>
 
-    <!-- Main Content -->
     <main class="main-content">
 
-        <!-- Dashboard View -->
         <div id="view-dashboard">
-            <div class="metrics-grid">
-                <div class="stat-card">
-                    <span class="stat-label">Current Distance</span>
-                    <div class="stat-value" id="val-dist">-- <span style="font-size: 1rem">cm</span></div>
-                </div>
-                <div class="stat-card">
-                    <span class="stat-label">Presence State</span>
-                    <div class="stat-value" id="val-presence">--</div>
-                </div>
-                <div class="stat-card">
-                    <span class="stat-label">Loiter Count</span>
-                    <div class="stat-value" id="val-loiter">--</div>
-                </div>
-                <div class="stat-card">
-                    <span class="stat-label">LCD Status</span>
-                    <div class="stat-value" id="val-lcd">--</div>
-                </div>
-            </div>
-
             <div class="glass-panel">
                 <div class="panel-header">
-                    <h2 style="font-weight: 700; font-size: 1.25rem;">Live Activity Logs</h2>
-                    <span style="font-size: 0.8rem; opacity: 0.6;" id="last-updated">Updating...</span>
+                    <h2 style="font-weight: 700; font-size: 1.25rem;">Sensor Set 1</h2>
+                    <span style="font-size: 0.8rem; opacity: 0.6;" id="last-updated-1">Updating...</span>
+                </div>
+                <div class="metrics-grid" style="margin-bottom: 24px;">
+                    <div class="stat-card">
+                        <span class="stat-label">Distance</span>
+                        <div class="stat-value" id="val-dist-1">-- cm</div>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-label">Presence</span>
+                        <div class="stat-value" id="val-presence-1">--</div>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-label">Loiter</span>
+                        <div class="stat-value" id="val-loiter-1">--</div>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-label">Sound</span>
+                        <div class="stat-value" id="val-sound-1">--</div>
+                    </div>
                 </div>
                 <div class="table-wrapper">
                     <table>
@@ -461,15 +438,14 @@
                                 <th>Distance</th>
                                 <th>PIR</th>
                                 <th>Presence</th>
-                                <th>Trend</th>
+                                <th>Sound</th>
                                 <th>Loiter</th>
-                                <th>LCD</th>
                             </tr>
                         </thead>
-                        <tbody id="data-body">
+                        <tbody id="data-body-1">
                             <tr>
-                                <td colspan="8" style="text-align: center; padding: 60px;">
-                                    <div style="opacity: 0.4">Initializing...</div>
+                                <td colspan="7" style="text-align: center; padding: 40px;">
+                                    <div style="opacity: 0.4">No data</div>
                                 </td>
                             </tr>
                         </tbody>
@@ -478,21 +454,11 @@
             </div>
         </div>
 
-        <!-- Analytics View -->
         <div id="view-analytics" class="view-hidden">
             <div class="panel-header">
                 <h1 style="margin-bottom: 0;">Activity Analytics</h1>
-                <div style="display: flex; gap: 8px;">
-                    <button class="btn-icon" style="font-size: 0.8rem; padding: 4px 12px;"
-                        onclick="renderAnalytics('hour')">Hourly</button>
-                    <button class="btn-icon" style="font-size: 0.8rem; padding: 4px 12px;"
-                        onclick="renderAnalytics('day')">Daily</button>
-                    <button class="btn-icon" style="font-size: 0.8rem; padding: 4px 12px;"
-                        onclick="renderAnalytics('month')">Monthly</button>
-                </div>
             </div>
 
-            <!-- Charts Section -->
             <div class="metrics-grid">
                 <div class="stat-card" style="grid-column: span 2">
                     <span class="stat-label">Loiter & Static Event Trends</span>
@@ -501,7 +467,7 @@
                     </div>
                 </div>
                 <div class="stat-card">
-                    <span class="stat-label">Avg. Proximity Distribution</span>
+                    <span class="stat-label">Distance Over Time</span>
                     <div class="chart-container">
                         <canvas id="distanceChart"></canvas>
                     </div>
@@ -524,7 +490,6 @@
     </main>
 
     <script>
-        // State Management
         const state = {
             theme: localStorage.getItem('theme') || 'light',
             isSidebarOpen: false,
@@ -536,24 +501,20 @@
             }
         };
 
-        // Navigation
         function switchView(viewName) {
             state.currentView = viewName;
 
-            // Toggle Views
             document.getElementById('view-dashboard').classList.toggle('view-hidden', viewName !== 'dashboard');
             document.getElementById('view-analytics').classList.toggle('view-hidden', viewName !== 'analytics');
 
-            // Toggle Nav Active Class
             document.getElementById('nav-dashboard').classList.toggle('active', viewName === 'dashboard');
             document.getElementById('nav-analytics').classList.toggle('active', viewName === 'analytics');
 
             if (viewName === 'analytics') {
-                setTimeout(() => renderAnalytics('hour'), 100);
+                setTimeout(() => renderAnalytics(), 100);
             }
         }
 
-        // Theme Toggle
         function toggleTheme() {
             state.theme = state.theme === 'light' ? 'dark' : 'light';
             document.body.setAttribute('data-theme', state.theme);
@@ -567,83 +528,78 @@
             btn.textContent = state.theme === 'light' ? 'dark_mode' : 'light_mode';
         }
 
-        // Sidebar Toggle
         function toggleSidebar() {
             state.isSidebarOpen = !state.isSidebarOpen;
             document.getElementById('sidebar').classList.toggle('active', state.isSidebarOpen);
         }
 
-        // Analytics Processing
-        function renderAnalytics(mode = 'hour') {
+        function formatPhilippineTime(timestamp) {
+            if (!timestamp) return '--:--';
+            const parts = timestamp.split(/[- :]/);
+            const hours = parseInt(parts[3], 10);
+            const minutes = parseInt(parts[4], 10);
+            if (isNaN(hours) || isNaN(minutes)) return '--:--';
+            const ampm = hours >= 12 ? 'PM' : 'AM';
+            const displayHours = hours % 12 || 12;
+            const displayMinutes = minutes.toString().padStart(2, '0');
+            return `${displayHours}:${displayMinutes} ${ampm}`;
+        }
+
+        function renderAnalytics() {
+            console.log('renderAnalytics called, data count:', state.rawData.length);
+            
             const container = document.getElementById('analytics-content');
+
             if (!state.rawData.length) {
-                container.innerHTML = `<div style="grid-column:1/-1; text-align:center; padding:40px;">No data available to analyze.</div>`;
+                container.innerHTML = `<div style="grid-column:1/-1; text-align:center; padding:40px;">No data available.</div>`;
                 return;
             }
 
-            const groups = {};
-
-            // Process data in chronological order for charts
-            const sortedData = [...state.rawData].sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
-
-            sortedData.forEach(row => {
-                const date = new Date(row.timestamp);
-                let key;
-
-                if (mode === 'month') {
-                    key = date.toLocaleDateString(undefined, { year: 'numeric', month: 'short' });
-                } else if (mode === 'day') {
-                    key = date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
-                } else {
-                    key = date.getHours() + ':00';
-                }
-
-                if (!groups[key]) {
-                    groups[key] = { loiters: 0, staticEvents: 0, count: 0, totalDist: 0 };
-                }
-
-                groups[key].count++;
-                groups[key].totalDist += row.distance;
-                if (row.loiter_count > 0) groups[key].loiters += row.loiter_count;
-                if (row.state === 'STATIC') groups[key].staticEvents++;
+            const sortedData = [...state.rawData].sort((a, b) => {
+                const timeA = new Date(a.timestamp.replace(' ', 'T') + 'Z').getTime();
+                const timeB = new Date(b.timestamp.replace(' ', 'T') + 'Z').getTime();
+                return timeA - timeB;
             });
 
-            // Update List UI
-            container.innerHTML = Object.entries(groups).reverse().map(([time, stats]) => `
+            const totalLoiters = sortedData.filter(r => r.buzzer_active === 'yes').length;
+            const totalStaticEvents = sortedData.filter(r => r.state === 'LOITER' || r.state === 'OBSTACLE').length;
+            const avgDistance = sortedData.reduce((sum, r) => sum + r.distance, 0) / sortedData.length;
+
+            container.innerHTML = `
                 <div class="analytics-item">
-                    <span class="time-label">${time}</span>
+                    <span class="time-label">Total Records</span>
                     <div class="event-tally">
-                        <span>Linger/Loiters</span>
-                        <span style="font-weight:700">${stats.loiters}</span>
+                        <span>Data Points</span>
+                        <span style="font-weight:700">${sortedData.length}</span>
                     </div>
                     <div class="event-tally">
-                        <span>Static Presence</span>
-                        <span style="font-weight:700">${stats.staticEvents}</span>
+                        <span>Loiter Events</span>
+                        <span style="font-weight:700">${totalLoiters}</span>
                     </div>
                     <div class="event-tally">
                         <span>Avg. Distance</span>
-                        <span>${(stats.totalDist / stats.count).toFixed(1)} cm</span>
+                        <span>${avgDistance.toFixed(1)} cm</span>
                     </div>
                     <div style="height:4px; width:100%; background:var(--border-main); border-radius:2px; margin-top:8px; overflow:hidden">
-                        <div style="height:100%; width:${Math.min((stats.loiters / 10) * 100, 100)}%; background:var(--primary)"></div>
+                        <div style="height:100%; width:100%; background:var(--primary)"></div>
                     </div>
                 </div>
-            `).join('');
+            `;
 
-            updateCharts(groups);
+            updateCharts(sortedData);
         }
 
-        function updateCharts(groups) {
-            const labels = Object.keys(groups);
-            const loiterData = labels.map(l => groups[l].loiters);
-            const staticData = labels.map(l => groups[l].staticEvents);
-            const distanceData = labels.map(l => (groups[l].totalDist / groups[l].count).toFixed(1));
+        function updateCharts(sortedData) {
+            const labels = sortedData.map(r => formatPhilippineTime(r.timestamp));
+            
+            const loiterData = sortedData.map(r => r.buzzer_active === 'yes' ? 1 : 0);
+            const staticData = sortedData.map(r => (r.state === 'LOITER' || r.state === 'OBSTACLE') ? 1 : 0);
+            const distanceData = sortedData.map(r => r.distance);
 
             const isDark = state.theme === 'dark';
             const textColor = isDark ? '#f8fafc' : '#1e293b';
             const gridColor = isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)';
 
-            // Event Chart
             if (state.charts.event) state.charts.event.destroy();
             state.charts.event = new Chart(document.getElementById('eventChart'), {
                 type: 'line',
@@ -651,19 +607,25 @@
                     labels,
                     datasets: [
                         {
-                            label: 'Loiters',
+                            label: 'Loiter Alert',
                             data: loiterData,
                             borderColor: '#6366f1',
                             backgroundColor: 'rgba(99, 102, 241, 0.1)',
                             fill: true,
-                            tension: 0.4
+                            tension: 0.2,
+                            borderWidth: 2,
+                            pointRadius: 2,
+                            pointBackgroundColor: '#6366f1'
                         },
                         {
                             label: 'Static Events',
                             data: staticData,
                             borderColor: '#10b981',
                             borderDash: [5, 5],
-                            tension: 0.4
+                            tension: 0.2,
+                            borderWidth: 2,
+                            pointRadius: 2,
+                            pointBackgroundColor: '#10b981'
                         }
                     ]
                 },
@@ -674,23 +636,35 @@
                         legend: { labels: { color: textColor, font: { family: 'Plus Jakarta Sans' } } }
                     },
                     scales: {
-                        x: { grid: { display: false }, ticks: { color: textColor } },
-                        y: { grid: { color: gridColor }, ticks: { color: textColor } }
+                        x: { 
+                            grid: { color: gridColor }, 
+                            ticks: { color: textColor, maxRotation: 45, minRotation: 45 } 
+                        },
+                        y: { 
+                            grid: { color: gridColor }, 
+                            ticks: { color: textColor },
+                            beginAtZero: true,
+                            max: 2
+                        }
                     }
                 }
             });
 
-            // Distance Chart
             if (state.charts.distance) state.charts.distance.destroy();
             state.charts.distance = new Chart(document.getElementById('distanceChart'), {
-                type: 'bar',
+                type: 'line',
                 data: {
                     labels,
                     datasets: [{
-                        label: 'Avg Distance (cm)',
+                        label: 'Distance (cm)',
                         data: distanceData,
-                        backgroundColor: '#6366f1',
-                        borderRadius: 8
+                        borderColor: '#6366f1',
+                        backgroundColor: 'rgba(99, 102, 241, 0.1)',
+                        fill: true,
+                        tension: 0.2,
+                        borderWidth: 2,
+                        pointRadius: 2,
+                        pointBackgroundColor: '#6366f1'
                     }]
                 },
                 options: {
@@ -700,14 +674,20 @@
                         legend: { display: false }
                     },
                     scales: {
-                        x: { grid: { display: false }, ticks: { color: textColor } },
-                        y: { grid: { color: gridColor }, ticks: { color: textColor } }
+                        x: { 
+                            grid: { display: false }, 
+                            ticks: { color: textColor, maxRotation: 45, minRotation: 45 } 
+                        },
+                        y: { 
+                            grid: { color: gridColor }, 
+                            ticks: { color: textColor },
+                            beginAtZero: true
+                        }
                     }
                 }
             });
         }
 
-        // Data Loading
         async function loadData() {
             const refreshBtn = document.getElementById('refresh-btn');
             refreshBtn.classList.add('refreshing-spinner');
@@ -718,8 +698,6 @@
                 state.rawData = data;
                 renderDashboardUI(data);
                 if (state.currentView === 'analytics') renderAnalytics();
-
-                document.getElementById('last-updated').textContent = `Last sync: ${new Date().toLocaleTimeString()}`;
             } catch (error) {
                 console.error('Data sync failed:', error);
             } finally {
@@ -728,35 +706,46 @@
         }
 
         function renderDashboardUI(data) {
-            const tbody = document.getElementById('data-body');
-
             if (!data || data.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; padding:40px;">No sensor data found</td></tr>`;
+                document.getElementById('data-body-1').innerHTML = `<tr><td colspan="7" style="text-align:center; padding:40px;">No sensor data found</td></tr>`;
                 return;
             }
 
-            const latest = data[0];
-            document.getElementById('val-dist').innerHTML = `${latest.distance} <span style="font-size: 1rem">cm</span>`;
-            document.getElementById('val-presence').innerHTML = latest.presence ?
-                `<span style="color:var(--accent-success)">ACTIVE</span>` : `<span>IDLE</span>`;
-            document.getElementById('val-loiter').textContent = latest.loiter_count || 0;
-            document.getElementById('val-lcd').textContent = latest.lcd_on ? 'ON' : 'OFF';
+            const data1 = data.filter(row => row.set == 1);
 
-            tbody.innerHTML = data.map(row => `
-                <tr>
-                    <td style="font-weight:600">${new Date(row.timestamp).toLocaleTimeString()}</td>
-                    <td><span class="pill" style="background:rgba(99,102,241,0.1); color:var(--primary)">${row.state}</span></td>
-                    <td>${row.distance} cm</td>
-                    <td><span class="pill pill-${!!row.pir}">${row.pir ? 'YES' : 'NO'}</span></td>
-                    <td><span class="pill pill-${!!row.presence}">${row.presence ? 'YES' : 'NO'}</span></td>
-                    <td><code style="font-size:0.75rem">${row.trend_buffer || '-'}</code></td>
-                    <td>${row.loiter_count}</td>
-                    <td><span class="pill pill-${!!row.lcd_on}">${row.lcd_on ? 'ON' : 'OFF'}</span></td>
-                </tr>
-            `).join('');
+            if (data1.length > 0) {
+                const latest1 = data1[0];
+                document.getElementById('val-dist-1').textContent = `${latest1.distance} cm`;
+                document.getElementById('val-presence-1').innerHTML = latest1.pir ?
+                    `<span style="color:var(--accent-success)">ACTIVE</span>` : `<span>IDLE</span>`;
+                document.getElementById('val-loiter-1').textContent = latest1.buzzer_active === 'yes' ? 1 : 0;
+                document.getElementById('val-sound-1').textContent = latest1.sound_level || 0;
+                document.getElementById('last-updated-1').textContent = `Last sync: ${new Date().toLocaleTimeString()}`;
+
+                const sortedData1 = [...data1].sort((a, b) => {
+                    const timeA = new Date(a.timestamp.replace(' ', 'T') + 'Z').getTime();
+                    const timeB = new Date(b.timestamp.replace(' ', 'T') + 'Z').getTime();
+                    return timeB - timeA;
+                });
+
+                document.getElementById('data-body-1').innerHTML = sortedData1.slice(0, 10).map(row => {
+                    const buzzerActive = row.buzzer_active === 'yes';
+                    return `
+                    <tr>
+                        <td style="font-weight:600">${row.timestamp}</td>
+                        <td><span class="pill" style="background:rgba(99,102,241,0.1); color:var(--primary)">${row.state}</span></td>
+                        <td>${row.distance} cm</td>
+                        <td><span class="pill pill-${!!row.pir}">${row.pir ? 'YES' : 'NO'}</span></td>
+                        <td><span class="pill pill-${!!row.pir}">${row.pir ? 'YES' : 'NO'}</span></td>
+                        <td>${row.sound_level}</td>
+                        <td>${buzzerActive ? 'ALARM' : '0'}</td>
+                    </tr>
+                `}).join('');
+            } else {
+                document.getElementById('data-body-1').innerHTML = `<tr><td colspan="7" style="text-align:center; padding:40px;">No data for Set 1</td></tr>`;
+            }
         }
 
-        // Initialize
         document.addEventListener('DOMContentLoaded', () => {
             document.body.setAttribute('data-theme', state.theme);
             updateThemeUI();

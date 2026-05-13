@@ -1,0 +1,2 @@
+-- Database and table creation is handled in serve/db_config.py
+-- This file is kept for reference

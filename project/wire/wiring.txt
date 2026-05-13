@@ -1,0 +1,60 @@
+═══════════════════════════════════════════════════════════════════════════════
+                     HALLWAY SENSOR ARRAY - WIRING TABLE
+═══════════════════════════════════════════════════════════════════════════════
+
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃  Sensor Module                                                  ┃
+┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+
+  Component            Arduino Pin    ESP8266 Pin    Notes
+  ────────────────────────────────────────────────────────────────────
+  PIR Sensor            Pin 2          -              Signal only
+  Ultrasonic Trig       Pin 3          -              HC-SR04 TRIG
+  Ultrasonic Echo       Pin 4          -              HC-SR04 ECHO
+  CZN15E Sound Sensor   Pin A0         -              Analog output
+  White LED             Pin A2         -              Anode → pin, cathode→GND via 220Ω
+  Red LED               Pin A3         -              Anode → pin, cathode→GND via 220Ω
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃  CENTRAL BUZZER                                                 ┃
+┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+
+  Component            Arduino Pin    ESP8266 Pin    Notes
+  ────────────────────────────────────────────────────────────────────
+  Buzzer                Pin 9          -              Shared by both Set 1 & Set 2
+                                                     Active/Pasive
+
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃  COMMUNICATION                                                  ┃
+┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+
+  Arduino Pin    ESP8266 Pin    Direction    Description
+  ────────────────────────────────────────────────────────────────────
+  Pin 12         GPIO3 (RX)     Arduino →    SoftwareSerial TX (9600 baud)
+  Pin 8          GPIO1 (TX)     ESP →        SoftwareSerial RX (optional, unused)
+
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃  POWER SUPPLY                                                   ┃
+┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+
+  Device          Voltage    Power Source           Notes
+  ────────────────────────────────────────────────────────────────────
+  Arduino         5V/7-12V   USB or DC barrel jack  Powers all 5V sensors
+  ESP8266         3.3V       Dedicated 3.3V supply  USB or regulator only
+  PIR Sensors     5V         From Arduino 5V pin    HC-SR501 compatible
+  Ultrasonic      5V         From Arduino 5V pin    HC-SR04 sensors
+  Sound Sensor    5V         From Arduino 5V pin    CZN15E modules
+  Buzzer          5V         From Arduino 5V pin    Single central buzzer shared by both sets
+
+  GND connections: ALL GND lines must be tied together (Arduino, ESP8266,
+  sensors, buzzers, LEDs) for common ground reference.
+
+═══════════════════════════════════════════════════════════════════════════════
+  Notes:
+  • Ultrasonic sensors use 5V power but echo signal is 5V → Arduino safe
+  • ESP8266 GPIO pins are 3.3V only - DO NOT connect to Arduino 5V pins
+  • Only RX/TX communication lines cross voltage domains (Arduino 5V → 
+    ESP8266 3.3V is okay because ESP8266 RX pin is 5V-tolerant on many
+    boards, but using a voltage divider on Arduino TX is recommended)
+  • All sensor VCC and GND connections can be powered from Arduino 5V and GND
+  • LED current limiting resistors: 220Ω for 5mm LEDs at 5V
+═══════════════════════════════════════════════════════════════════════════════
