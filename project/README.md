@@ -35,16 +35,16 @@ The system determines whether the hallway passage is **clear or obstructed** by 
 
 These three inputs feed into a **state machine** that classifies the hallway into one of six states:
 
-| State | Meaning | How it's reached |
-|---|---|---|
-| **CLEAR** | Passage is open, no one nearby | Default state; no sensors triggered |
-| **WALK_IN** | Someone is entering the hallway | Distance drops below 30 cm *and/or* PIR triggers within 120 cm range |
-| **WALK_OUT** | Someone is leaving the hallway | Distance increases by more than 60 cm while presence was active |
-| **LINGER** | Person has stopped moving near the entrance | Distance remains stable (within 60 cm change) for more than 1 second during WALK_IN |
+| State              | Meaning                                                   | How it's reached                                                                                    |
+| ------------------ | --------------------------------------------------------- | --------------------------------------------------------------------------------------------------- |
+| **CLEAR**          | Passage is open, no one nearby                            | Default state; no sensors triggered                                                                 |
+| **WALK_IN**        | Someone is entering the hallway                           | Distance drops below 30 cm _and/or_ PIR triggers within 120 cm range                                |
+| **WALK_OUT**       | Someone is leaving the hallway                            | Distance increases by more than 60 cm while presence was active                                     |
+| **LINGER**         | Person has stopped moving near the entrance               | Distance remains stable (within 60 cm change) for more than 1 second during WALK_IN                 |
 | **LOITER (alarm)** | Person has been stationary too long — **passage blocked** | Person stays still within a 15 cm radius for more than **5 seconds**; buzzer and alarm LED activate |
-| **SLEEP** | No activity for 30 seconds; system in low-power idle | Automatically exits on any sensor activity |
+| **SLEEP**          | No activity for 30 seconds; system in low-power idle      | Automatically exits on any sensor activity                                                          |
 
-In short: the system doesn't just detect *that* someone is present — it tracks *how long* they stay still. A brief passage (walk in, walk out) is normal. A person who stops and remains for more than 5 seconds triggers the **blockage alarm**, indicating the hallway passage is obstructed.
+In short: the system doesn't just detect _that_ someone is present — it tracks _how long_ they stay still. A brief passage (walk in, walk out) is normal. A person who stops and remains for more than 5 seconds triggers the **blockage alarm**, indicating the hallway passage is obstructed.
 
 The backend in [serve/v6.7.py](serve/v6.7.py) listens to MQTT messages, parses the payload, and saves each reading into MySQL. The Flask app in [serve/app.py](serve/app.py) exposes the dashboard and an API endpoint at `/api/data`.
 
@@ -157,10 +157,6 @@ Visit:
 ```text
 http://localhost:5000/dashboard
 ```
-
-## Dashboard Behavior
-
-The dashboard shows the most recent records and refreshes periodically. The table now displays timestamps exactly as they are returned from the database, such as `2026-05-13 15:05:04`, with no conversion to another format.
 
 ## Notes
 
